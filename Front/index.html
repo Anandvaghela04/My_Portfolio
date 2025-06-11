@@ -252,7 +252,7 @@
             };
 
             try {
-                const res = await fetch('http://localhost:3000/api/contact', {
+                const res = await fetch(`https://anand-dev.onrender.com/api/contact`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -281,7 +281,7 @@
     <script>
         async function loadProjects() {
             try {
-                const res = await fetch('/api/projects');
+                const res = await fetch(`https://anand-dev.onrender.com/api/projects`);
                 const projects = await res.json();
 
                 const container = document.getElementById('projectList');

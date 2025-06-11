@@ -6,7 +6,7 @@ document.getElementById('adminLoginForm').addEventListener('submit', async funct
   const password = document.getElementById('adminPassword').value;
 
   try {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch(`https://anand-dev.onrender.com/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
@@ -52,7 +52,7 @@ document.getElementById('addProjectForm').addEventListener('submit', async funct
   }
 
   try {
-    const res = await fetch('/api/projects', {
+    const res = await fetch(`https://anand-dev.onrender.com/api/projects`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -75,7 +75,7 @@ document.getElementById('addProjectForm').addEventListener('submit', async funct
 // Fetch and display all projects
 async function fetchProjects() {
   try {
-    const res = await fetch('/api/projects');
+    const res = await fetch(`https://anand-dev.onrender.com/api/projects`);
     const projects = await res.json();
 
     const projectsList = document.getElementById('projectsList');
@@ -113,7 +113,7 @@ async function deleteProject(id) {
   if (!confirm('Are you sure you want to delete this project?')) return;
 
   try {
-    const res = await fetch(`/api/projects/${id}`, {
+    const res = await fetch(`https://anand-dev.onrender.com/api/projects/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -131,7 +131,7 @@ async function deleteProject(id) {
 //edit project
 async function editProject(id) {
   try {
-    const res = await fetch(`/api/projects`);
+    const res = await fetch(`https://anand-dev.onrender.com/api/projects`);
     const projects = await res.json();
     const project = projects.find(p => p._id === id);
 
@@ -157,7 +157,7 @@ async function editProject(id) {
       const token = localStorage.getItem('adminToken');
 
       try {
-        const res = await fetch(`/api/projects/${id}`, {
+        const res = await fetch(`https://anand-dev.onrender.com/api/projects/${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
