@@ -193,10 +193,10 @@
 
         <!--===== WORK =====-->
         <section class="work section" id="work">
-            <h2 class="section-title">Work</h2>
+            <h2 class="section-title text-center">Work</h2>
 
-            <div class="work__container mt-5 bd-grid">
-                <div id="projectList" class="work__img" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="container mt-4">
+                <div class="row g-4" id="projectList">
                     <!-- Projects will be dynamically inserted here -->
                 </div>
             </div>
@@ -279,63 +279,78 @@
 
     <!--===== project JS =====-->
     <script>
-        async function loadProjects() {
-            try {
-                const res = await fetch(`https://anand-dev.onrender.com/api/projects`);
-                const projects = await res.json();
+  async function loadProjects() {
+    try {
+      const res = await fetch(`https://anand-dev.onrender.com/api/projects`);
+      const projects = await res.json();
 
-                const container = document.getElementById('projectList');
-                container.innerHTML = '';
+      const container = document.getElementById("projectList");
+      container.innerHTML = "";
 
-                if (projects.length === 0) {
-                    container.innerHTML = '<p class="text-center">No projects available.</p>';
-                    return;
-                }
+      if (projects.length === 0) {
+        container.innerHTML =
+          '<p class="text-center">No projects available.</p>';
+        return;
+      }
 
-                projects.forEach((project, index) => {
-                    const col = document.createElement('div');
+      projects.forEach((project, index) => {
+        const col = document.createElement("div");
+        col.className = "col-12 col-md-6 col-lg-4"; // Bootstrap grid classes
 
-                    col.innerHTML = `
-    <div class="card project-card h-100 shadow-sm border-0">
-      ${project.image ? `
-        <img src="${project.image}" class="card-img-top project-img" alt="${project.title}">` : ''
-                        }
-      <div class="card-body d-flex flex-column">
-        <h5 class="card-title text-primary fw-bold">${project.title}</h5>
-        <p id="desc-${index}" class="card-text text-muted flex-grow-1 project-description collapsed">
-          ${project.description}
-        </p>
-        ${project.description.length > 100 ? `
-          <button class="btn btn-link p-0 read-more-btn" style="text-decoration: none;" data-target="desc-${index}">Read More</button>
-        ` : ''}
-      </div>
-      <div class="card-footer bg-white border-0 d-flex justify-content-start gap-2">
-        ${project.githubUrl ? `<a href="${project.githubUrl}" class="btn btn-sm btn-outline-dark" target="_blank"><i class="fab fa-github me-1"></i>GitHub</a>` : ''}
-        ${project.demoUrl ? `<a href="${project.demoUrl}" class="btn btn-sm btn-primary" target="_blank"><i class="fas fa-external-link-alt me-1"></i>Live</a>` : ''}
-      </div>
-    </div>
-  `;
-                    container.appendChild(col);
-                });
-
-
-            } catch (err) {
-                console.error('Error loading projects:', err);
-                document.getElementById('projectList').innerHTML = '<p class="text-danger text-center">Failed to load projects.</p>';
+        col.innerHTML = `
+        <div class="card project-card h-100 shadow-sm border-0">
+          ${
+            project.image
+              ? `<img src="${project.image}" class="card-img-top project-img" alt="${project.title}">`
+              : ""
+          }
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title text-primary fw-bold">${project.title}</h5>
+            <p id="desc-${index}" class="card-text text-muted flex-grow-1 project-description collapsed">
+              ${project.description}
+            </p>
+            ${
+              project.description.length > 100
+                ? `<button class="btn btn-link p-0 read-more-btn" style="text-decoration: none;" data-target="desc-${index}">Read More</button>`
+                : ""
             }
-        }
-
-        window.onload = loadProjects;
-
-        document.addEventListener('click', function (e) {
-            if (e.target.classList.contains('read-more-btn')) {
-                const descId = e.target.getAttribute('data-target');
-                const descEl = document.getElementById(descId);
-                descEl.classList.toggle('collapsed');
-                e.target.textContent = descEl.classList.contains('collapsed') ? 'Read More' : 'Read Less';
+          </div>
+          <div class="card-footer bg-white border-0 d-flex justify-content-start gap-2">
+            ${
+              project.githubUrl
+                ? `<a href="${project.githubUrl}" class="btn btn-sm btn-outline-dark" target="_blank"><i class="fab fa-github me-1"></i>GitHub</a>`
+                : ""
             }
-        });
-    </script>
+            ${
+              project.demoUrl
+                ? `<a href="${project.demoUrl}" class="btn btn-sm btn-primary" target="_blank"><i class="fas fa-external-link-alt me-1"></i>Live</a>`
+                : ""
+            }
+          </div>
+        </div>
+      `;
+        container.appendChild(col);
+      });
+    } catch (err) {
+      console.error("Error loading projects:", err);
+      document.getElementById("projectList").innerHTML =
+        '<p class="text-danger text-center">Failed to load projects.</p>';
+    }
+  }
+
+  window.onload = loadProjects;
+
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("read-more-btn")) {
+      const descId = e.target.getAttribute("data-target");
+      const descEl = document.getElementById(descId);
+      descEl.classList.toggle("collapsed");
+      e.target.textContent = descEl.classList.contains("collapsed")
+        ? "Read More"
+        : "Read Less";
+    }
+  });
+</script>
 
     <script>
         var typed = new Typed("#typed-text", {
