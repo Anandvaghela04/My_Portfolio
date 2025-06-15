@@ -1,12 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../models/Project');
-const verifyToken = require('../middleware/verifyToken'); // 👈 Add this line
-// const multer = require('multer');
-const upload = require('../middleware/upload');
-const path = require('path');
+const verifyToken = require('../middleware/verifyToken');
+const cloudinary = require('../utils/cloudinary');
 
-// GET all projects (public)
+// ================= GET all projects =================
 router.get('/', async (req, res) => {
   try {
     const projects = await Project.find().sort({ createdAt: -1 });
@@ -16,30 +14,72 @@ router.get('/', async (req, res) => {
   }
 });
 
-// POST add new project (protected)
-// Add project with image
-router.post('/', verifyToken, upload.single('image'), async (req, res) => {
-  const { title, description, githubUrl, demoUrl } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : '';
+// ================= POST new project =================
+router.post('/', verifyToken, async (req, res) => {
+  const { title, description, githubUrl, demoUrl, technologies, image } = req.body;
 
-  const newProject = new Project({
-    title,
-    description,
-    githubUrl,
-    demoUrl,
-    image,
-  });
+  if (!title || !description) {
+    return res.status(400).json({ message: 'Title and description are required' });
+  }
 
   try {
-    const savedProject = await newProject.save();
-    res.status(201).json(savedProject);
+    let imageUrl = '';
+    if (image) {
+      const uploadRes = await cloudinary.uploader.upload(image, {
+        folder: 'portfolio_projects',
+      });
+      imageUrl = uploadRes.secure_url;
+    }
+
+    const newProject = new Project({
+      title,
+      description,
+      githubUrl,
+      demoUrl,
+      technologies: technologies ? technologies.split(',').map(t => t.trim()) : [],
+      image: imageUrl,
+    });
+
+    const saved = await newProject.save();
+    res.status(201).json(saved);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Project POST error:', err);
+    res.status(500).json({ message: 'Failed to create project' });
   }
 });
 
+// ================= PUT update project =================
+router.put('/:id', verifyToken, async (req, res) => {
+  const { title, description, githubUrl, demoUrl, technologies, image } = req.body;
 
-// DELETE project by ID (protected)
+  try {
+    const project = await Project.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    let imageUrl = project.image;
+    if (image && image.startsWith('data:')) {
+      const uploadRes = await cloudinary.uploader.upload(image, {
+        folder: 'portfolio_projects',
+      });
+      imageUrl = uploadRes.secure_url;
+    }
+
+    project.title = title;
+    project.description = description;
+    project.githubUrl = githubUrl;
+    project.demoUrl = demoUrl;
+    project.technologies = technologies ? technologies.split(',').map(t => t.trim()) : [];
+    project.image = imageUrl;
+
+    const updated = await project.save();
+    res.json(updated);
+  } catch (err) {
+    console.error('Project PUT error:', err);
+    res.status(500).json({ message: 'Failed to update project' });
+  }
+});
+
+// ================= DELETE project =================
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const removed = await Project.findByIdAndDelete(req.params.id);
@@ -49,18 +89,5 @@ router.delete('/:id', verifyToken, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
-// PUT update project by ID (protected)
-router.put('/:id', verifyToken, async (req, res) => {
-  try {
-    const updated = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: 'Project not found' });
-    res.json(updated);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-
 
 module.exports = router;
